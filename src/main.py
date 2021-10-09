@@ -2,7 +2,6 @@ import numpy as np
 import ctypes
 import cv2
 from mss import mss
-from PIL import Image
 
 sct = mss()
 user32 = ctypes.windll.user32
@@ -20,10 +19,10 @@ bounding_box = {
 }
 
 
-def get_contour_areas(contours):
+def get_contour_areas(c):
     all_areas = []
 
-    for cnt in contours:
+    for cnt in c:
         area = cv2.contourArea(cnt)
         all_areas.append(area)
     return all_areas
@@ -34,13 +33,15 @@ def findContours(sct_img):
     ret, thresh = cv2.threshold(gray, 127, 255, 0)
 
     edges = cv2.Canny(thresh, 30, 200)
-    contours, hierarchy = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    c, hierarchy = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
-    return contours
+    return c
 
 
-def getBoardDimensions(contours):
-    sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
+def getBoardDimensions(c):
+    sorted_contours = sorted(c, key=cv2.contourArea, reverse=True)
+    # 0 = Expert, 1 = Intermediate, 3 = Beginner
+    # 200% Display, Light theme
     largest = sorted_contours[0]
 
     x, y, w, h = cv2.boundingRect(largest)
@@ -52,6 +53,23 @@ def crop2ROI(img, x, y, w, h):
     return img[y:y + h, x:x + w]
 
 
+def getCellDimensions(c):
+    x_start, y_start, x_count, y_count = 0, 0, 1, 1
+
+    for contour in c:
+        x, y, w, h = cv2.boundingRect(contour)
+
+        if x_start == 0:
+            x_start = x
+            y_start = y
+        elif x == x_start:
+            x_count += 1
+        elif y == y_start:
+            y_count += 1
+
+    return x_count, y_count
+
+
 while True:
     window = np.array(sct.grab(bounding_box))
     dims = getBoardDimensions(findContours(window))
@@ -60,6 +78,7 @@ while True:
     contours = findContours(cropped)
     cv2.drawContours(cropped, contours, -1, (0, 255, 0), 3)
     cv2.imshow('contours', cropped)
+    getCellDimensions(contours)
     # cv2.imshow('screen', crop2ROI(window, *dims))
 
     if (cv2.waitKey(1) & 0xFF) == ord('q'):
