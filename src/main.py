@@ -2,7 +2,6 @@ import numpy as np
 import ctypes
 import cv2
 from mss import mss
-from PIL import Image
 
 sct = mss()
 user32 = ctypes.windll.user32
@@ -55,7 +54,7 @@ def crop2ROI(img, x, y, w, h):
 
 
 def getCellDimensions(c):
-    x_start, y_start, x_count, y_count = 0, 0, 0, 0
+    x_start, y_start, x_count, y_count = 0, 0, 1, 1
 
     for contour in c:
         x, y, w, h = cv2.boundingRect(contour)
@@ -63,14 +62,12 @@ def getCellDimensions(c):
         if x_start == 0:
             x_start = x
             y_start = y
-            x_count = 1
-            y_count = 1
         elif x == x_start:
             x_count += 1
         elif y == y_start:
             y_count += 1
 
-    print(x_count, y_count)
+    return x_count, y_count
 
 
 while True:
