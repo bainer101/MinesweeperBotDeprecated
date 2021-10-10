@@ -1,7 +1,11 @@
 import numpy as np
 import ctypes
 import cv2
+from classes.Board import Board
+
 from mss import mss
+
+board = Board()
 
 sct = mss()
 user32 = ctypes.windll.user32
@@ -53,34 +57,28 @@ def crop2ROI(img, x, y, w, h):
     return img[y:y + h, x:x + w]
 
 
-def getCellDimensions(c):
-    x_start, y_start, x_count, y_count = 0, 0, 1, 1
-
-    for contour in c:
-        x, y, w, h = cv2.boundingRect(contour)
-
-        if x_start == 0:
-            x_start = x
-            y_start = y
-        elif x == x_start:
-            x_count += 1
-        elif y == y_start:
-            y_count += 1
-
-    return x_count, y_count
-
-
-while True:
+def main():
     window = np.array(sct.grab(bounding_box))
     dims = getBoardDimensions(findContours(window))
     cropped = crop2ROI(window, *dims)
 
     contours = findContours(cropped)
-    cv2.drawContours(cropped, contours, -1, (0, 255, 0), 3)
-    cv2.imshow('contours', cropped)
-    getCellDimensions(contours)
-    # cv2.imshow('screen', crop2ROI(window, *dims))
+    # cv2.drawContours(cropped, contours, -1, (0, 255, 0), 3)
 
-    if (cv2.waitKey(1) & 0xFF) == ord('q'):
-        cv2.destroyAllWindows()
-        break
+    board.getCellDimensions(contours)
+    board.createBoard()
+    board.viewBoard()
+
+    while True:
+        window = np.array(sct.grab(bounding_box))
+        cropped = crop2ROI(window, *dims)
+
+        cv2.imshow('Board', cropped)
+
+        if (cv2.waitKey(1) & 0xFF) == ord('q'):
+            cv2.destroyAllWindows()
+            break
+
+
+if __name__ == '__main__':
+    main()
