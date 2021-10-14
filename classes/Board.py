@@ -29,3 +29,6 @@ class Board:
     def viewBoard(self):
         for row in self.board:
             print(row)
+
+    def getDims(self):
+        return self.x, self.y
