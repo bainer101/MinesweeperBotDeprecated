@@ -49,9 +49,9 @@ class ImgRec:
 
         return x, y, w, h
 
-    def crop2ROI(self):
-        x, y, w, h = self.dims
-        self.sct_img = self.sct_img[y:y + h, x:x + w]
+    def crop2ROI(self, dims):
+        x, y, w, h = dims
+        return self.sct_img[y:y + h, x:x + w]
 
     def updateImg(self):
         self.sct_img = np.array(self.sct.grab(self.bounding_box))
@@ -59,6 +59,14 @@ class ImgRec:
     def getContours(self):
         return self.contours
 
+    def getDims(self):
+        return self.dims
+
     def getImg(self):
-        self.crop2ROI()
+        self.sct_img = self.crop2ROI(self.dims)
         return self.sct_img
+
+    def getCell(self):
+        dims = cv2.boundingRect(self.contours[0])
+
+        return self.crop2ROI(dims)

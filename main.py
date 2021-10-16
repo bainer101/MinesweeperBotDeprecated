@@ -2,16 +2,17 @@ import cv2
 
 from classes.Board import Board
 from classes.ImgRec import ImgRec
+from classes.NumberRec import NumberRec
 from enums.Difficulty import Difficulty
 
 board = Board()
-imgRec = ImgRec(1, Difficulty.BEGINNER)
+imgRec = ImgRec(1, Difficulty.EXPERT)
 
 
 def main():
     # TODO: THIS IS TEMPORARY, ASK USER TO WAIT UNTIL CORRECT BOARD DISPLAYED
     imgRec.getBoardDimensions()
-    imgRec.crop2ROI()
+    imgRec.getImg()
 
     imgRec.findContours()
     # cv2.drawContours(cropped, contours, -1, (0, 255, 0), 3)
@@ -22,9 +23,11 @@ def main():
 
     while True:
         imgRec.updateImg()
-        imgRec.crop2ROI()
 
-        cv2.imshow('Board', imgRec.sct_img)
+        numberRec = NumberRec(imgRec.getCell())
+        print(numberRec.getNumber())
+
+        cv2.imshow('Board', imgRec.getImg())
 
         if (cv2.waitKey(1) & 0xFF) == ord('q'):
             cv2.destroyAllWindows()
