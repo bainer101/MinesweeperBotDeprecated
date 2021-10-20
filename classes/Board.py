@@ -24,11 +24,18 @@ class Board:
         for x in range(self.x):
             self.board.append([])
             for y in range(self.y):
-                self.board[x].append(0)
+                self.board[x].append(None)
 
     def viewBoard(self):
         for row in self.board:
             print(row)
 
+    def addCell(self, coords, cell):
+        x, y = coords
+        self.board[x][y] = cell
+
     def getDims(self):
         return self.x, self.y
+
+    def getBoard(self):
+        return self.board

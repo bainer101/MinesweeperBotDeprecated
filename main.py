@@ -6,7 +6,7 @@ from classes.NumberRec import NumberRec
 from enums.Difficulty import Difficulty
 
 board = Board()
-imgRec = ImgRec(1, Difficulty.EXPERT)
+imgRec = ImgRec(1, Difficulty.EXPERT, board)
 
 
 def main():
@@ -19,19 +19,24 @@ def main():
 
     board.getCellDimensions(imgRec.getContours())
     board.createBoard()
-    board.viewBoard()
+    imgRec.genCells()
+    print(board.getBoard()[0][0].getCoords())
+
+    num_rec = NumberRec()
 
     while True:
         imgRec.updateImg()
 
-        numberRec = NumberRec(imgRec.getCell())
-        print(numberRec.getNumber())
 
         cv2.imshow('Board', imgRec.getImg())
 
-        if (cv2.waitKey(1) & 0xFF) == ord('q'):
+        k = (cv2.waitKey(1) & 0xFF)
+        if k == ord('q'):
             cv2.destroyAllWindows()
             break
+        elif k == ord('s'):
+            filename = input("What number is this? ") + ".jpg"
+            cv2.imwrite("dataset/"+filename, imgRec.getCell())
 
 
 if __name__ == '__main__':
